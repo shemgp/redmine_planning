@@ -1738,6 +1738,8 @@ PlanningChart.prototype.saveChanged = function ()
     for (var iter = 0; iter < ikeys.length; ++iter)
     {
         var id = ikeys[iter];
+        if (this.changed[id].due_date == null)
+            this.changed[id].due_date = new Date(this.changed[id].start_date.getTime() + 30 * 60000);
         issues.push({
             'id': id,
             'start_date': this.changed[id].start_date.toISODateString(),
@@ -2040,6 +2042,8 @@ PlanningIssue.prototype.move = function (arg1, arg2)
         if (arg1 >= arg2)
             throw "Start date is equal to or later than due date";
 
+        if (this.due_date == null)
+            this.due_date = new Date(this.start_date.getTime() + 30 * 60000);
         if (this.start_date.getTime() == arg1.getTime() && this.due_date.getTime() == arg2.getTime())
             return;
 
@@ -2132,7 +2136,10 @@ PlanningIssue.prototype.calculateLimits = function (direction, ctime)
     this.min_due_date = null;
     this.max_due_date = null;
 
-    var duration = this.due_date.subtract(this.start_date);
+    var duration = new Date(this.start_date.getTime() + 30 * 60000);
+    if (this.due_date != null)
+        duration = this.due_date.subtract(this.start_date);
+    
 
     // Check parent issue critical path
     var limit; // Limit date storage
